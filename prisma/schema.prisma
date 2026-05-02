@@ -1,0 +1,249 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  SUPER_ADMIN
+  MANAGER
+  WAREHOUSE_STAFF
+  VIEWER
+}
+
+enum LocationType {
+  DRY_STORAGE
+  WALK_IN_COOLER
+  FREEZER
+  CHEMICAL_STORAGE
+  CUSTOM
+}
+
+enum OrderStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  ORDERED
+  RECEIVED
+  CLOSED
+}
+
+// ─── NextAuth Models ──────────────────────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── Application Models ───────────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(VIEWER)
+  active        Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  stockCounts   StockCount[]
+  usageLogs     UsageLog[]
+  createdOrders PurchaseOrder[] @relation("OrderCreatedBy")
+  auditLogs     AuditLog[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model Vendor {
+  id          String   @id @default(cuid())
+  name        String
+  contactName String?
+  email       String?
+  phone       String?
+  address     String?
+  notes       String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  items  InventoryItem[]
+  orders PurchaseOrder[]
+
+  @@index([active])
+}
+
+model Location {
+  id        String       @id @default(cuid())
+  name      String       @unique
+  type      LocationType @default(CUSTOM)
+  sortOrder Int          @default(0)
+  createdAt DateTime     @default(now())
+
+  items InventoryItem[]
+}
+
+model InventoryItem {
+  id           String   @id @default(cuid())
+  name         String
+  sku          String   @unique
+  category     String
+  unit         String
+  parLevel     Float
+  reorderPoint Float
+  quantity     Float    @default(0)
+  costPerUnit  Decimal  @db.Decimal(10, 4)
+  notes        String?
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  locationId String?
+  location   Location? @relation(fields: [locationId], references: [id])
+  vendorId   String?
+  vendor     Vendor?   @relation(fields: [vendorId], references: [id])
+
+  stockCounts StockCount[]
+  usageLogs   UsageLog[]
+  orderItems  PurchaseOrderItem[]
+
+  @@index([active])
+  @@index([category])
+  @@index([locationId])
+  @@index([vendorId])
+  @@index([quantity])
+}
+
+model StockCount {
+  id        String   @id @default(cuid())
+  quantity  Float
+  notes     String?
+  countedAt DateTime @default(now())
+
+  itemId String
+  item   InventoryItem @relation(fields: [itemId], references: [id])
+  userId String
+  user   User          @relation(fields: [userId], references: [id])
+
+  @@index([itemId])
+  @@index([userId])
+  @@index([countedAt])
+}
+
+model UsageLog {
+  id       String   @id @default(cuid())
+  quantity Float
+  notes    String?
+  loggedAt DateTime @default(now())
+
+  itemId String
+  item   InventoryItem @relation(fields: [itemId], references: [id])
+  userId String
+  user   User          @relation(fields: [userId], references: [id])
+
+  @@index([itemId])
+  @@index([userId])
+  @@index([loggedAt])
+}
+
+model PurchaseOrder {
+  id           String      @id @default(cuid())
+  orderNumber  String      @unique
+  status       OrderStatus @default(DRAFT)
+  notes        String?
+  expectedDate DateTime?
+  submittedAt  DateTime?
+  approvedAt   DateTime?
+  orderedAt    DateTime?
+  receivedAt   DateTime?
+  closedAt     DateTime?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  vendorId    String
+  vendor      Vendor @relation(fields: [vendorId], references: [id])
+  createdById String
+  createdBy   User   @relation("OrderCreatedBy", fields: [createdById], references: [id])
+
+  items PurchaseOrderItem[]
+
+  @@index([status])
+  @@index([vendorId])
+  @@index([createdById])
+  @@index([createdAt])
+}
+
+model PurchaseOrderItem {
+  id              String   @id @default(cuid())
+  quantity        Float
+  receivedQty     Float?
+  unitCost        Decimal  @db.Decimal(10, 4)
+  discrepancyNote String?
+  createdAt       DateTime @default(now())
+
+  orderId String
+  order   PurchaseOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  itemId  String
+  item    InventoryItem @relation(fields: [itemId], references: [id])
+
+  @@index([orderId])
+  @@index([itemId])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String
+  entityType String
+  entityId   String?
+  details    Json?
+  createdAt  DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entityType])
+  @@index([createdAt])
+}
