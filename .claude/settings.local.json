@@ -3,7 +3,18 @@
     "allow": [
       "Bash(Remove-Item *)",
       "Bash(Start-Process \"C:\\\\Program Files\\\\Docker\\\\Docker\\\\Docker Desktop.exe\")",
-      "PowerShell(Start-Process \"C:\\\\Program Files\\\\Docker\\\\Docker\\\\Docker Desktop.exe\")"
+      "PowerShell(Start-Process \"C:\\\\Program Files\\\\Docker\\\\Docker\\\\Docker Desktop.exe\")",
+      "Bash(openssl rand *)",
+      "Bash(sed -i '' 's/import { auth } from \"@\\\\/lib\\\\/auth\";/import { getSession } from \"@\\\\/lib\\\\/auth\";/g' '/Users/jaredberesford/Documents/GitHub/Shelfboss/app/\\(mobile\\)/m/page.tsx' '/Users/jaredberesford/Documents/GitHub/Shelfboss/app/\\(admin\\)/vendors/page.tsx' '/Users/jaredberesford/Documents/GitHub/Shelfboss/app/\\(admin\\)/inventory/page.tsx' '/Users/jaredberesford/Documents/GitHub/Shelfboss/app/\\(admin\\)/dashboard/page.tsx' '/Users/jaredberesford/Documents/GitHub/Shelfboss/app/\\(admin\\)/inventory/[id]/page.tsx' '/Users/jaredberesford/Documents/GitHub/Shelfboss/app/\\(admin\\)/orders/page.tsx' '/Users/jaredberesford/Documents/GitHub/Shelfboss/app/\\(admin\\)/orders/[id]/page.tsx')",
+      "Bash(sed -i '' 's/await auth\\(\\)/await getSession\\(\\)/g' '/Users/jaredberesford/Documents/GitHub/Shelfboss/app/\\(mobile\\)/m/page.tsx' '/Users/jaredberesford/Documents/GitHub/Shelfboss/app/\\(admin\\)/vendors/page.tsx' '/Users/jaredberesford/Documents/GitHub/Shelfboss/app/\\(admin\\)/inventory/page.tsx' '/Users/jaredberesford/Documents/GitHub/Shelfboss/app/\\(admin\\)/dashboard/page.tsx' '/Users/jaredberesford/Documents/GitHub/Shelfboss/app/\\(admin\\)/inventory/[id]/page.tsx' '/Users/jaredberesford/Documents/GitHub/Shelfboss/app/\\(admin\\)/orders/page.tsx' '/Users/jaredberesford/Documents/GitHub/Shelfboss/app/\\(admin\\)/orders/[id]/page.tsx')",
+      "Bash(psql --version)",
+      "Bash(brew services *)",
+      "Bash(npx vercel *)",
+      "Bash(xargs cat *)",
+      "Bash(git -C /Users/jaredberesford/Documents/GitHub/Shelfboss log --oneline -5)",
+      "Bash(git -C /Users/jaredberesford/Documents/GitHub/Shelfboss remote -v)",
+      "Bash(node -e ' *)",
+      "Bash(git *)"
     ]
   }
 }
