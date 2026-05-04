@@ -1,4 +1,5 @@
 import { db } from "./db";
+import { Prisma } from "@prisma/client";
 
 export type AuditAction =
   | "CREATE"
@@ -28,7 +29,7 @@ export async function logAudit(
         action,
         entityType,
         entityId: entityId ?? null,
-        details: details ?? undefined,
+        details: (details as Prisma.InputJsonValue | null) ?? Prisma.JsonNull,
       },
     });
   } catch {

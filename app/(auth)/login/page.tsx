@@ -14,10 +14,8 @@ export default function LoginPage({
 }: {
   searchParams: { callbackUrl?: string; error?: string };
 }) {
-  if (process.env.NODE_ENV === "development") redirect("/dashboard");
-
   const callbackUrl = searchParams.callbackUrl ?? "/";
-  const isDev = process.env.NODE_ENV === "development";
+  const isDev = (process.env.NODE_ENV as string) === "development";
 
   return (
     <Card className="w-full max-w-sm">

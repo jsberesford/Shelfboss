@@ -66,7 +66,7 @@ export function Sidebar({ role }: SidebarProps) {
         <nav className="space-y-6 px-3">
           {navigation.map((group) => {
             const visibleItems = group.items.filter((item) => {
-              const itemRoles = "roles" in item ? item.roles : undefined;
+              const itemRoles = "roles" in item ? (item.roles as Role[]) : undefined;
               if (!itemRoles) return true;
               return itemRoles.includes(role);
             });

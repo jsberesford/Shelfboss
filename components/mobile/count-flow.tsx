@@ -60,7 +60,7 @@ export function CountFlow({ items }: CountFlowProps) {
     startTransition(async () => {
       try {
         await submitStockCount(currentItem.id, value);
-        setSubmitted((prev) => new Set([...prev, currentItem.id]));
+        setSubmitted((prev) => new Set([...Array.from(prev), currentItem.id]));
         toast.success(`${currentItem.name}: ${value} ${currentItem.unit}`);
 
         if (currentIndex !== null && currentIndex < filtered.length - 1) {

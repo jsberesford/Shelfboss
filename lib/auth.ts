@@ -6,7 +6,7 @@ import { db } from "./db";
 import type { Role } from "@prisma/client";
 
 const devProviders =
-  process.env.NODE_ENV === "development"
+  (process.env.NODE_ENV as string) === "development"
     ? [
         Credentials({
           id: "dev-login",
@@ -42,7 +42,7 @@ const azureProvider =
         MicrosoftEntraID({
           clientId: process.env.AZURE_AD_CLIENT_ID,
           clientSecret: process.env.AZURE_AD_CLIENT_SECRET,
-          tenantId: process.env.AZURE_AD_TENANT_ID,
+          issuer: `https://login.microsoftonline.com/${process.env.AZURE_AD_TENANT_ID}/v2.0`,
           authorization: {
             params: { scope: "openid profile email User.Read" },
           },
@@ -95,6 +95,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
 export async function getSession() {
   const session = await auth();
-  if (process.env.NODE_ENV === "development" && !session) return DEV_SESSION;
+  if ((process.env.NODE_ENV as string) === "development" && !session) return DEV_SESSION;
   return session;
 }
