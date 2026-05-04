@@ -36,21 +36,30 @@ const devProviders =
       ]
     : [];
 
+const azureProvider =
+  process.env.AZURE_AD_CLIENT_ID && process.env.AZURE_AD_CLIENT_SECRET && process.env.AZURE_AD_TENANT_ID
+    ? [
+        MicrosoftEntraID({
+          clientId: process.env.AZURE_AD_CLIENT_ID,
+          clientSecret: process.env.AZURE_AD_CLIENT_SECRET,
+          tenantId: process.env.AZURE_AD_TENANT_ID,
+          authorization: {
+            params: { scope: "openid profile email User.Read" },
+          },
+        }),
+      ]
+    : [];
+
+const DEV_SESSION = {
+  user: { id: "dev", name: "Dev User", email: "dev@localhost", image: null, role: "SUPER_ADMIN" as Role },
+  expires: new Date(Date.now() + 86400000).toISOString(),
+};
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(db),
   // JWT strategy is required when using Credentials provider alongside an adapter
   session: { strategy: "jwt", maxAge: 30 * 24 * 60 * 60 },
-  providers: [
-    MicrosoftEntraID({
-      clientId: process.env.AZURE_AD_CLIENT_ID!,
-      clientSecret: process.env.AZURE_AD_CLIENT_SECRET!,
-      tenantId: process.env.AZURE_AD_TENANT_ID!,
-      authorization: {
-        params: { scope: "openid profile email User.Read" },
-      },
-    }),
-    ...devProviders,
-  ],
+  providers: [...azureProvider, ...devProviders],
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -83,3 +92,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     error: "/login",
   },
 });
+
+export async function getSession() {
+  const session = await auth();
+  if (process.env.NODE_ENV === "development" && !session) return DEV_SESSION;
+  return session;
+}

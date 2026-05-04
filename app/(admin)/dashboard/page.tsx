@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Package, AlertTriangle, ShoppingCart, DollarSign } from "lucide-react";
 import { db } from "@/lib/db";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatsCard } from "@/components/admin/stats-card";
 import { ActivityFeed } from "@/components/admin/activity-feed";
@@ -15,7 +15,7 @@ import type { InventoryItemWithRelations, AuditLogWithUser } from "@/types";
 export const metadata: Metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
-  const session = await auth();
+  const session = await getSession();
 
   const [items, pendingOrders, recentActivity] = await Promise.all([
     db.inventoryItem.findMany({

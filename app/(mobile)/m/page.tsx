@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +12,7 @@ import { MobileHeader } from "@/components/mobile/mobile-header";
 export const metadata: Metadata = { title: "Home" };
 
 export default async function MobileHomePage() {
-  const session = await auth();
+  const session = await getSession();
 
   const [allItems, pendingOrdersCount] = await Promise.all([
     db.inventoryItem.findMany({

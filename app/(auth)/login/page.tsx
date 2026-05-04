@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { signIn } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +14,8 @@ export default function LoginPage({
 }: {
   searchParams: { callbackUrl?: string; error?: string };
 }) {
+  if (process.env.NODE_ENV === "development") redirect("/dashboard");
+
   const callbackUrl = searchParams.callbackUrl ?? "/";
   const isDev = process.env.NODE_ENV === "development";
 

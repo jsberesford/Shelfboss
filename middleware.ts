@@ -5,6 +5,8 @@ import { isAdminRole } from "@/lib/permissions";
 import type { Role } from "@prisma/client";
 
 export default auth((req) => {
+  if (process.env.NODE_ENV === "development") return NextResponse.next();
+
   const { nextUrl } = req;
   const session = req.auth;
   const isLoggedIn = !!session?.user;

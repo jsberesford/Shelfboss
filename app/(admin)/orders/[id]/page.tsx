@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { PageHeader } from "@/components/shared/page-header";
 import { OrderStatusBadge } from "@/components/admin/order-status-badge";
 import { OrderActions } from "@/components/admin/order-actions";
@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
 }
 
 export default async function OrderDetailPage({ params }: { params: { id: string } }) {
-  const session = await auth();
+  const session = await getSession();
   const role = session?.user?.role as Role;
 
   const order = await db.purchaseOrder.findUnique({

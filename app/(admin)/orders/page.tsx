@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { PageHeader } from "@/components/shared/page-header";
 import { OrderTable } from "@/components/admin/order-table";
 import type { Role } from "@prisma/client";
@@ -8,7 +8,7 @@ import type { Role } from "@prisma/client";
 export const metadata: Metadata = { title: "Orders" };
 
 export default async function OrdersPage() {
-  const session = await auth();
+  const session = await getSession();
   const role = session?.user?.role as Role;
 
   const orders = await db.purchaseOrder.findMany({

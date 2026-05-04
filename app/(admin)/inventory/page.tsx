@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { PageHeader } from "@/components/shared/page-header";
 import { InventoryTable } from "@/components/admin/inventory-table";
 import { CsvImport } from "@/components/admin/csv-import";
@@ -11,7 +11,7 @@ import type { Role } from "@prisma/client";
 export const metadata: Metadata = { title: "Inventory" };
 
 export default async function InventoryPage() {
-  const session = await auth();
+  const session = await getSession();
   const role = session?.user?.role as Role;
 
   const items = await db.inventoryItem.findMany({
