@@ -11,8 +11,13 @@ export default auth((req) => {
   const session = req.auth;
   const isLoggedIn = !!session?.user;
 
-  // Public routes
-  if (nextUrl.pathname.startsWith("/login") || nextUrl.pathname.startsWith("/api/auth")) {
+  // Auth API routes always pass through (signout must never be blocked)
+  if (nextUrl.pathname.startsWith("/api/auth")) {
+    return NextResponse.next();
+  }
+
+  // Login page — redirect already-logged-in users to their home
+  if (nextUrl.pathname.startsWith("/login")) {
     if (isLoggedIn) {
       const role = session.user.role as Role;
       const destination = isAdminRole(role) ? "/dashboard" : "/m";
