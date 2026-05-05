@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { logAudit } from "@/lib/audit";
 import { requirePermission } from "@/lib/permissions";
@@ -9,7 +9,7 @@ import type { InventoryItemFormData } from "@/types";
 import type { Role } from "@prisma/client";
 
 async function getSessionOrThrow() {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user?.id) throw new Error("Unauthorized");
   return session;
 }
@@ -40,7 +40,7 @@ export async function createInventoryItem(data: InventoryItemFormData) {
   });
 
   revalidatePath("/inventory");
-  return item;
+  return { success: true as const };
 }
 
 export async function updateInventoryItem(id: string, data: Partial<InventoryItemFormData>) {
@@ -68,7 +68,7 @@ export async function updateInventoryItem(id: string, data: Partial<InventoryIte
 
   revalidatePath("/inventory");
   revalidatePath(`/inventory/${id}`);
-  return item;
+  return { success: true as const };
 }
 
 export async function deleteInventoryItem(id: string) {
@@ -83,7 +83,7 @@ export async function deleteInventoryItem(id: string) {
   await logAudit(session.user.id, "DELETE", "InventoryItem", id, { name: item.name });
 
   revalidatePath("/inventory");
-  return item;
+  return { success: true as const };
 }
 
 export async function submitStockCount(itemId: string, quantity: number, notes?: string) {
