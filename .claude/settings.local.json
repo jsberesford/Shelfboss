@@ -17,7 +17,8 @@
       "Bash(git *)",
       "Bash(DATABASE_URL=\"postgresql://postgres:gsdKhYMFFIroBmQNtIYGrrlZaYIsQBbl@tramway.proxy.rlwy.net:20289/railway\" npx prisma *)",
       "Bash(DATABASE_URL=\"postgresql://postgres:gsdKhYMFFIroBmQNtIYGrrlZaYIsQBbl@tramway.proxy.rlwy.net:20289/railway\" node *)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(xargs -I {} find {} -type f -name \"*.ts\")"
     ]
   }
 }
