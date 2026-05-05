@@ -1,6 +1,5 @@
 "use client";
 
-import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 
@@ -24,7 +23,7 @@ export function MobileHeader({ title, subtitle, showSignOut }: MobileHeaderProps
             variant="ghost"
             size="icon"
             className="text-primary-foreground hover:bg-white/10 hover:text-primary-foreground"
-            onClick={() => signOut({ callbackUrl: "/login" })}
+            onClick={() => (window.location.href = "/api/auth/signout")}
           >
             <LogOut className="h-5 w-5" />
           </Button>
