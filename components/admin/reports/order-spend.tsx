@@ -10,15 +10,20 @@ import {
 } from "@/components/ui/table";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import type { PurchaseOrder, PurchaseOrderItem, InventoryItem, Vendor } from "@prisma/client";
+import { DateRangeFilter } from "@/components/shared/date-range-filter";
 
 type OrderWithRelations = PurchaseOrder & {
   vendor: Vendor;
   items: (PurchaseOrderItem & { item: InventoryItem })[];
 };
 
-interface Props { orders: OrderWithRelations[] }
+interface Props {
+  orders: OrderWithRelations[];
+  from?: string;
+  to?: string;
+}
 
-export function OrderSpendReport({ orders }: Props) {
+export function OrderSpendReport({ orders, from, to }: Props) {
   const totalSpend = useMemo(
     () => orders.reduce((s, o) => s + o.items.reduce((si, i) => si + i.quantity * Number(i.unitCost), 0), 0),
     [orders]
@@ -41,6 +46,8 @@ export function OrderSpendReport({ orders }: Props) {
 
   return (
     <div className="space-y-6">
+      <DateRangeFilter from={from} to={to} />
+
       <div className="grid gap-4 sm:grid-cols-3">
         <Card>
           <CardContent className="p-6">

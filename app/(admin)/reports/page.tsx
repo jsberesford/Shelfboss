@@ -9,7 +9,33 @@ import { getStockStatus } from "@/types";
 
 export const metadata: Metadata = { title: "Reports" };
 
-export default async function ReportsPage() {
+export default async function ReportsPage({
+  searchParams,
+}: {
+  searchParams: { from?: string; to?: string; tab?: string };
+}) {
+  const { from, to } = searchParams;
+
+  const usageWhere =
+    from || to
+      ? {
+          loggedAt: {
+            ...(from && { gte: new Date(from) }),
+            ...(to && { lte: new Date(to + "T23:59:59Z") }),
+          },
+        }
+      : undefined;
+
+  const orderWhere: Record<string, unknown> = {
+    status: { in: ["RECEIVED", "CLOSED"] },
+  };
+  if (from || to) {
+    orderWhere.createdAt = {
+      ...(from && { gte: new Date(from) }),
+      ...(to && { lte: new Date(to + "T23:59:59Z") }),
+    };
+  }
+
   const [items, usageLogs, orders] = await Promise.all([
     db.inventoryItem.findMany({
       where: { active: true },
@@ -17,6 +43,7 @@ export default async function ReportsPage() {
       orderBy: { category: "asc" },
     }),
     db.usageLog.findMany({
+      where: usageWhere,
       orderBy: { loggedAt: "desc" },
       take: 500,
       include: {
@@ -25,7 +52,7 @@ export default async function ReportsPage() {
       },
     }),
     db.purchaseOrder.findMany({
-      where: { status: { in: ["RECEIVED", "CLOSED"] } },
+      where: orderWhere,
       include: { vendor: true, items: { include: { item: true } } },
       orderBy: { createdAt: "desc" },
     }),
@@ -58,11 +85,11 @@ export default async function ReportsPage() {
         </TabsContent>
 
         <TabsContent value="usage" className="mt-6">
-          <UsageReport logs={usageLogs} />
+          <UsageReport logs={usageLogs} from={from} to={to} />
         </TabsContent>
 
         <TabsContent value="spend" className="mt-6">
-          <OrderSpendReport orders={orders} />
+          <OrderSpendReport orders={orders} from={from} to={to} />
         </TabsContent>
       </Tabs>
     </div>

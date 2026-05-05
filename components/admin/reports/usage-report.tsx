@@ -12,15 +12,20 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { format, startOfDay } from "date-fns";
 import type { UsageLog, InventoryItem, User } from "@prisma/client";
+import { DateRangeFilter } from "@/components/shared/date-range-filter";
 
 type LogWithRelations = UsageLog & {
   item: InventoryItem;
   user: Pick<User, "id" | "name" | "email">;
 };
 
-interface Props { logs: LogWithRelations[] }
+interface Props {
+  logs: LogWithRelations[];
+  from?: string;
+  to?: string;
+}
 
-export function UsageReport({ logs }: Props) {
+export function UsageReport({ logs, from, to }: Props) {
   const chartData = useMemo(() => {
     const byDay = new Map<string, number>();
     logs.forEach((log) => {
@@ -37,6 +42,8 @@ export function UsageReport({ logs }: Props) {
 
   return (
     <div className="space-y-6">
+      <DateRangeFilter from={from} to={to} />
+
       <div className="grid gap-4 sm:grid-cols-2">
         <Card>
           <CardContent className="p-6">

@@ -1,14 +1,17 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useTransition } from "react";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { DateRangeFilter } from "@/components/shared/date-range-filter";
 import { formatDateTime } from "@/lib/utils";
 import { Search } from "lucide-react";
+import { loadMoreAuditLogs } from "@/actions/audit";
 import type { AuditLogWithUser } from "@/types";
 
 const ACTION_COLORS: Record<string, string> = {
@@ -24,10 +27,27 @@ const ACTION_COLORS: Record<string, string> = {
   IMPORT: "info",
 };
 
-interface AuditTableProps { logs: AuditLogWithUser[] }
+interface AuditTableProps {
+  initialLogs: AuditLogWithUser[];
+  initialCursor: string | null;
+  from?: string;
+  to?: string;
+}
 
-export function AuditTable({ logs }: AuditTableProps) {
+export function AuditTable({ initialLogs, initialCursor, from, to }: AuditTableProps) {
+  const [logs, setLogs] = useState<AuditLogWithUser[]>(initialLogs);
+  const [cursor, setCursor] = useState<string | null>(initialCursor);
   const [search, setSearch] = useState("");
+  const [isPending, startTransition] = useTransition();
+
+  function handleLoadMore() {
+    if (!cursor) return;
+    startTransition(async () => {
+      const { logs: newLogs, nextCursor } = await loadMoreAuditLogs(cursor, from, to);
+      setLogs((prev) => [...prev, ...newLogs]);
+      setCursor(nextCursor);
+    });
+  }
 
   const filtered = useMemo(() => {
     if (!search) return logs;
@@ -43,14 +63,17 @@ export function AuditTable({ logs }: AuditTableProps) {
 
   return (
     <div className="space-y-4">
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Filter by action, entity, user…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-9"
-        />
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Filter by action, entity, user…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <DateRangeFilter from={from} to={to} />
       </div>
 
       <div className="rounded-md border">
@@ -106,9 +129,21 @@ export function AuditTable({ logs }: AuditTableProps) {
         </Table>
       </div>
 
-      <p className="text-xs text-muted-foreground">
-        Showing {filtered.length} of {logs.length} entries (last 500)
-      </p>
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-muted-foreground">
+          Showing {filtered.length} {filtered.length !== logs.length ? `of ${logs.length} loaded ` : ""}entries
+        </p>
+        {cursor && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleLoadMore}
+            disabled={isPending}
+          >
+            {isPending ? "Loading…" : "Load more"}
+          </Button>
+        )}
+      </div>
     </div>
   );
 }
