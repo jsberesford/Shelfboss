@@ -12,6 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { formatCurrency } from "@/lib/utils";
 import { Search } from "lucide-react";
+import { ExportButton } from "@/components/shared/export-button";
+import { exportInventoryValuationCSV } from "@/actions/export";
 import type { InventoryValuationRow } from "@/types";
 
 interface Props { rows: InventoryValuationRow[] }
@@ -86,14 +88,17 @@ export function InventoryValuationReport({ rows }: Props) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-4">
           <CardTitle className="text-base">Item Breakdown</CardTitle>
-          <div className="relative w-56">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Filter items…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 h-8 text-sm"
-            />
+          <div className="flex items-center gap-2">
+            <div className="relative w-56">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Filter items…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9 h-8 text-sm"
+              />
+            </div>
+            <ExportButton action={exportInventoryValuationCSV} filename="inventory-valuation" />
           </div>
         </CardHeader>
         <CardContent>

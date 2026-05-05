@@ -11,6 +11,8 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { format, startOfDay } from "date-fns";
+import { ExportButton } from "@/components/shared/export-button";
+import { exportUsageLogCSV } from "@/actions/export";
 import type { UsageLog, InventoryItem, User } from "@prisma/client";
 
 type LogWithRelations = UsageLog & {
@@ -70,8 +72,9 @@ export function UsageReport({ logs }: Props) {
       </Card>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-base">Usage Log</CardTitle>
+          <ExportButton action={exportUsageLogCSV} filename="usage-log" />
         </CardHeader>
         <CardContent>
           <Table>

@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { formatDateTime } from "@/lib/utils";
 import { Search } from "lucide-react";
+import { ExportButton } from "@/components/shared/export-button";
+import { exportAuditLogCSV } from "@/actions/export";
 import type { AuditLogWithUser } from "@/types";
 
 const ACTION_COLORS: Record<string, string> = {
@@ -43,14 +45,17 @@ export function AuditTable({ logs }: AuditTableProps) {
 
   return (
     <div className="space-y-4">
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Filter by action, entity, user…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-9"
-        />
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Filter by action, entity, user…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <ExportButton action={exportAuditLogCSV} filename="audit-log" />
       </div>
 
       <div className="rounded-md border">

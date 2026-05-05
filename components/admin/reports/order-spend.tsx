@@ -9,6 +9,8 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { ExportButton } from "@/components/shared/export-button";
+import { exportOrderSpendCSV } from "@/actions/export";
 import type { PurchaseOrder, PurchaseOrderItem, InventoryItem, Vendor } from "@prisma/client";
 
 type OrderWithRelations = PurchaseOrder & {
@@ -80,8 +82,9 @@ export function OrderSpendReport({ orders }: Props) {
       </Card>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-base">Order History</CardTitle>
+          <ExportButton action={exportOrderSpendCSV} filename="order-spend" />
         </CardHeader>
         <CardContent>
           <Table>

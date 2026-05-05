@@ -4,8 +4,8 @@ import { getSession } from "@/lib/auth";
 import { PageHeader } from "@/components/shared/page-header";
 import { InventoryTable } from "@/components/admin/inventory-table";
 import { CsvImport } from "@/components/admin/csv-import";
-import { Button } from "@/components/ui/button";
-import { Upload, Download } from "lucide-react";
+import { ExportButton } from "@/components/shared/export-button";
+import { exportInventoryCSV } from "@/actions/export";
 import type { Role } from "@prisma/client";
 
 export const metadata: Metadata = { title: "Inventory" };
@@ -31,10 +31,7 @@ export default async function InventoryPage() {
         {canImport && (
           <div className="flex gap-2">
             <CsvImport />
-            <Button variant="outline" size="sm">
-              <Download className="h-4 w-4" />
-              Export
-            </Button>
+            <ExportButton action={exportInventoryCSV} filename="inventory" />
           </div>
         )}
       </PageHeader>
