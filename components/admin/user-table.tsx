@@ -53,6 +53,13 @@ export function UserTable({ users }: UserTableProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
+          {users.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={5} className="py-10 text-center text-sm text-muted-foreground">
+                No users found. New employees will appear here after their first sign-in.
+              </TableCell>
+            </TableRow>
+          )}
           {users.map((user) => {
             const isCurrentUser = session?.user?.id === user.id;
             const initials = user.name

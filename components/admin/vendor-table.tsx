@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { createVendor, updateVendor, deactivateVendor } from "@/actions/vendors";
+import { createVendor, updateVendor, deactivateVendor, reactivateVendor } from "@/actions/vendors";
 import { Plus, Pencil } from "lucide-react";
 import type { Vendor, Role } from "@prisma/client";
 
@@ -143,7 +143,7 @@ export function VendorTable({ vendors, role }: VendorTableProps) {
                       <Button variant="ghost" size="icon" onClick={() => openEdit(vendor)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
-                      {vendor.active && (
+                      {vendor.active ? (
                         <ConfirmDialog
                           trigger={
                             <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" disabled={isPending}>
@@ -158,6 +158,24 @@ export function VendorTable({ vendors, role }: VendorTableProps) {
                             startTransition(async () => {
                               await deactivateVendor(vendor.id);
                               toast.success("Vendor deactivated");
+                              router.refresh();
+                            })
+                          }
+                        />
+                      ) : (
+                        <ConfirmDialog
+                          trigger={
+                            <Button variant="ghost" size="sm" disabled={isPending}>
+                              Reactivate
+                            </Button>
+                          }
+                          title="Reactivate Vendor"
+                          description={`Restore ${vendor.name} as an active vendor?`}
+                          confirmLabel="Reactivate"
+                          onConfirm={() =>
+                            startTransition(async () => {
+                              await reactivateVendor(vendor.id);
+                              toast.success("Vendor reactivated");
                               router.refresh();
                             })
                           }

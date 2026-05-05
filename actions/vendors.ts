@@ -64,3 +64,13 @@ export async function deactivateVendor(id: string) {
   revalidatePath("/vendors");
   return vendor;
 }
+
+export async function reactivateVendor(id: string) {
+  const session = await getSessionOrThrow();
+  requirePermission(session.user.role as Role, "vendors:manage");
+
+  const vendor = await db.vendor.update({ where: { id }, data: { active: true } });
+  await logAudit(session.user.id, "UPDATE", "Vendor", id, { action: "reactivated" });
+  revalidatePath("/vendors");
+  return { success: true };
+}
